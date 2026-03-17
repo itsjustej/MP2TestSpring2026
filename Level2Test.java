@@ -295,14 +295,14 @@ public class Level2Test {
             checkStr("GenerativeAI", "getDataset",          "syntheticDataset",t.getDataset());
             checkStr("GenerativeAI", "getGenerativeModels", "diffusionModel",  t.getGenerativeModels());
             checkStr("GenerativeAI", "getLearnPatterns",    "patternMimicry",  t.getLearnPatterns());
-            checkInt("GenerativeAI", "getTrainset",         1000,              t.getTrainset());
+            checkDouble("GenerativeAI", "getTrainset",         1000.0,              t.getTrainset());
             System.out.println("GenerativeAI Setters/Getters: PASS");
 
             GenerativeAI t2 = new GenerativeAI("syntheticDataset", "diffusionModel", "patternMimicry", 1000);
             checkStr("GenerativeAI", "getDataset          [args constructor param 1]", "syntheticDataset", t2.getDataset());
             checkStr("GenerativeAI", "getGenerativeModels [args constructor param 2]", "diffusionModel",   t2.getGenerativeModels());
             checkStr("GenerativeAI", "getLearnPatterns    [args constructor param 3]", "patternMimicry",   t2.getLearnPatterns());
-            checkInt("GenerativeAI", "getTrainset         [args constructor param 4]", 1000,               t2.getTrainset());
+            checkDouble("GenerativeAI", "getTrainset         [args constructor param 4]", 1000.0,               t2.getTrainset());
             System.out.println("GenerativeAI Args Constructor: PASS");
 
             String tStr = t2.toString();
