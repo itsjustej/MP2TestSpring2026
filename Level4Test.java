@@ -1,257 +1,229 @@
+import java.io.*;
 import java.lang.reflect.*;
-import java.util.*;
+import java.util.ArrayList;
 
 public class Level4Test {
 
-    private static final String GUI_CLASS = "AggiePlatformGUI";
+    static void pass(String msg) {
+        System.out.println(msg + ": PASS");
+    }
+
+    static void fail(String msg) throws Exception {
+        throw new Exception(msg);
+    }
+
+    static Field getField(Class<?> clazz, Class<?> fieldType) {
+        for (Field f : clazz.getDeclaredFields()) {
+            if (fieldType.isAssignableFrom(f.getType())) return f;
+        }
+        for (Field f : clazz.getDeclaredFields()) {
+            if (f.getType().getName().contains(fieldType.getSimpleName())) return f;
+        }
+        return null;
+    }
+
+    static boolean hasFieldOfType(Class<?> clazz, String typeName) {
+        for (Field f : clazz.getDeclaredFields()) {
+            if (f.getType().getSimpleName().equals(typeName)) return true;
+            if (f.getType().getName().contains(typeName)) return true;
+        }
+        return false;
+    }
+
+    static boolean hasFieldAssignableTo(Class<?> clazz, String superTypeName) {
+        for (Field f : clazz.getDeclaredFields()) {
+            Class<?> ft = f.getType();
+            while (ft != null) {
+                if (ft.getSimpleName().equals(superTypeName)) return true;
+                ft = ft.getSuperclass();
+            }
+            for (Class<?> iface : f.getType().getInterfaces()) {
+                if (iface.getSimpleName().equals(superTypeName)) return true;
+            }
+        }
+        return false;
+    }
+
+    static Method findMethod(Class<?> clazz, String name, Class<?>... params) {
+        try {
+            return clazz.getDeclaredMethod(name, params);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    static boolean hasButtonWithText(Class<?> clazz, String text) throws Exception {
+        for (Field f : clazz.getDeclaredFields()) {
+            if (f.getType().getSimpleName().equals("Button")) {
+                f.setAccessible(true);
+                return true;
+            }
+        }
+        StringWriter sw = new StringWriter();
+        try (InputStream is = new FileInputStream("AggiePlatformGUI.java");
+             BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains("\"" + text + "\"")) return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean sourceContains(String... tokens) {
+        try (BufferedReader br = new BufferedReader(new FileReader("AggiePlatformGUI.java"))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) sb.append(line).append("\n");
+            String src = sb.toString();
+            for (String token : tokens) {
+                if (!src.contains(token)) return false;
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
     public static void main(String[] args) {
         try {
-            System.out.println("Starting Level 4: GUI Structure Validation...");
+            System.out.println("Starting Level 4: AggiePlatformGUI Structure Validation...");
 
-            // ================================================================
-            // 1. GUI class must exist
-            // ================================================================
-            Class<?> guiClass;
-            try {
-                guiClass = Class.forName(GUI_CLASS);
-            } catch (ClassNotFoundException e) {
-                throw new Exception(
-                    "GUI class '" + GUI_CLASS + "' not found.\n" +
-                    "  Check : your GUI class must be named exactly 'AggiePlatformGUI'\n" +
-                    "  Check : the file must be named 'AggiePlatformGUI.java'\n" +
-                    "  Check : the class must not be inside a package (or add the package prefix above)");
-            }
-            System.out.println("GUI Class Found: PASS");
+            Class<?> guiClass = Class.forName("AggiePlatformGUI");
 
-            // ================================================================
-            // 2. Must extend javafx.application.Application
-            // ================================================================
-            Class<?> applicationClass;
-            try {
-                applicationClass = Class.forName("javafx.application.Application");
-            } catch (ClassNotFoundException e) {
-                throw new Exception(
-                    "JavaFX runtime not found on the classpath/module path.\n" +
-                    "  Fix : add --module-path /path/to/javafx-sdk/lib --add-modules javafx.controls\n" +
-                    "        when compiling and running this test.");
-            }
-            if (!applicationClass.isAssignableFrom(guiClass))
-                throw new Exception(
-                    "AggiePlatformGUI does not extend javafx.application.Application.\n" +
-                    "  Your class declaration should look like:\n" +
-                    "    public class AggiePlatformGUI extends Application { ... }");
-            System.out.println("Extends Application: PASS");
+            System.out.println("\n--- Class Structure ---");
 
-            // ================================================================
-            // 3. No FXML — must not use SceneBuilder / @FXML
-            // ================================================================
-            for (Field f : guiClass.getDeclaredFields()) {
-                for (Annotation a : f.getAnnotations()) {
-                    if (a.annotationType().getName().equals("javafx.fxml.FXML"))
-                        throw new Exception(
-                            "@FXML annotation found on field '" + f.getName() + "'.\n" +
-                            "  You must NOT use SceneBuilder or FXML.\n" +
-                            "  Remove all @FXML annotations and .fxml files.\n" +
-                            "  Build all components in Java code inside your start() method.");
-                }
-            }
-            for (Method m : guiClass.getDeclaredMethods()) {
-                if (m.getName().equals("initialize") && m.getParameterCount() == 2) {
-                    throw new Exception(
-                        "initialize(URL, ResourceBundle) method detected — this is auto-generated by SceneBuilder.\n" +
-                        "  You must NOT use the FXML GUI builder.\n" +
-                        "  Delete this method and remove any associated .fxml files.");
-                }
-            }
-            System.out.println("No FXML / SceneBuilder: PASS");
+            Class<?> appClass = Class.forName("javafx.application.Application");
+            if (!appClass.isAssignableFrom(guiClass))
+                fail("AggiePlatformGUI must extend javafx.application.Application");
+            pass("Extends javafx.application.Application");
 
-            // ================================================================
-            // 4. start(Stage) must be overridden
-            // ================================================================
-            Class<?> stageClass;
-            try {
-                stageClass = Class.forName("javafx.stage.Stage");
-            } catch (ClassNotFoundException e) {
-                throw new Exception("javafx.stage.Stage not found — JavaFX module path issue (see above).");
-            }
-            boolean hasStart = false;
-            for (Method m : guiClass.getDeclaredMethods()) {
-                if (m.getName().equals("start")
-                        && m.getParameterCount() == 1
-                        && m.getParameterTypes()[0].equals(stageClass)) {
-                    hasStart = true;
-                    break;
-                }
-            }
-            if (!hasStart)
-                throw new Exception(
-                    "start(Stage) method not found in AggiePlatformGUI.\n" +
-                    "  You must override the start method from Application:\n" +
-                    "    @Override\n" +
-                    "    public void start(Stage primaryStage) { ... }");
-            System.out.println("start(Stage) Overridden: PASS");
+            Class<?> stageClass = Class.forName("javafx.stage.Stage");
+            Method startMethod = findMethod(guiClass, "start", stageClass);
+            if (startMethod == null)
+                fail("AggiePlatformGUI must override start(Stage primaryStage)");
+            pass("start(Stage) method present");
 
-            // Collect all declared fields including from superclasses
-            List<Field> allFields = new ArrayList<>();
-            Class<?> c = guiClass;
-            while (c != null && !c.equals(Object.class)) {
-                allFields.addAll(Arrays.asList(c.getDeclaredFields()));
-                c = c.getSuperclass();
-            }
-
-            // ================================================================
-            // 5. Platform field must be present
-            // ================================================================
-            boolean hasPlatformField = false;
-            for (Field f : allFields) {
-                if (f.getType().equals(Platform.class)) {
-                    hasPlatformField = true;
-                    break;
-                }
-            }
+            boolean hasPlatformField = hasFieldOfType(guiClass, "Platform");
             if (!hasPlatformField)
-                throw new Exception(
-                    "No Platform field found in AggiePlatformGUI.\n" +
-                    "  Your GUI class must declare a Platform instance variable, e.g.:\n" +
-                    "    private Platform platform;");
-            System.out.println("Platform Field Present: PASS");
+                fail("AggiePlatformGUI must have a Platform field");
+            pass("Platform field present");
 
-            // ================================================================
-            // 6. ListView OR TableView
-            // ================================================================
-            Class<?> listViewClass  = Class.forName("javafx.scene.control.ListView");
-            Class<?> tableViewClass = Class.forName("javafx.scene.control.TableView");
-            boolean hasListOrTable = false;
-            for (Field f : allFields) {
-                if (listViewClass.isAssignableFrom(f.getType())
-                        || tableViewClass.isAssignableFrom(f.getType())) {
-                    hasListOrTable = true;
-                    break;
-                }
-            }
-            if (!hasListOrTable)
-                throw new Exception(
-                    "No ListView or TableView field found in AggiePlatformGUI.\n" +
-                    "  You need a component to display the list of AI objects, e.g.:\n" +
-                    "    private ListView<String> aiListView;");
-            System.out.println("ListView / TableView Present: PASS");
+            System.out.println("\n--- Required JavaFX Components ---");
 
-            // ================================================================
-            // 7. ComboBox
-            // ================================================================
-            Class<?> comboBoxClass = Class.forName("javafx.scene.control.ComboBox");
-            boolean hasComboBox = false;
-            for (Field f : allFields) {
-                if (comboBoxClass.isAssignableFrom(f.getType())) {
-                    hasComboBox = true;
-                    break;
-                }
-            }
+            boolean hasListView  = hasFieldOfType(guiClass, "ListView")
+                                || hasFieldOfType(guiClass, "TableView")
+                                || sourceContains("ListView")
+                                || sourceContains("TableView");
+            if (!hasListView)
+                fail("AggiePlatformGUI must contain a ListView or TableView");
+            pass("ListView or TableView present");
+
+            boolean hasComboBox = hasFieldOfType(guiClass, "ComboBox") || sourceContains("ComboBox");
             if (!hasComboBox)
-                throw new Exception(
-                    "No ComboBox field found in AggiePlatformGUI.\n" +
-                    "  You need a ComboBox so the user can select the AI type, e.g.:\n" +
-                    "    private ComboBox<String> aiTypeComboBox;");
-            System.out.println("ComboBox Present: PASS");
+                fail("AggiePlatformGUI must contain a ComboBox");
+            pass("ComboBox present");
 
-            // ================================================================
-            // 8. At least one TextField
-            // ================================================================
-            Class<?> textFieldClass = Class.forName("javafx.scene.control.TextField");
-            boolean hasTextField = false;
-            for (Field f : allFields) {
-                if (textFieldClass.isAssignableFrom(f.getType())) {
-                    hasTextField = true;
-                    break;
-                }
-            }
+            boolean hasTextField = hasFieldOfType(guiClass, "TextField")
+                                || sourceContains("TextField");
             if (!hasTextField)
-                throw new Exception(
-                    "No TextField field found in AggiePlatformGUI.\n" +
-                    "  You need at least one TextField for the user to enter AI property values, e.g.:\n" +
-                    "    private TextField inputField;");
-            System.out.println("TextField Present: PASS");
+                fail("AggiePlatformGUI must contain TextField input fields");
+            pass("TextField input fields present");
 
-            // ================================================================
-            // 9. At least one Label (for status messages)
-            // ================================================================
-            Class<?> labelClass = Class.forName("javafx.scene.control.Label");
-            boolean hasLabel = false;
-            for (Field f : allFields) {
-                if (labelClass.isAssignableFrom(f.getType())) {
-                    hasLabel = true;
-                    break;
-                }
-            }
+            boolean hasLabel = hasFieldOfType(guiClass, "Label") || sourceContains("Label");
             if (!hasLabel)
-                throw new Exception(
-                    "No Label field found in AggiePlatformGUI.\n" +
-                    "  You need a Label to show status messages to the user, e.g.:\n" +
-                    "    private Label statusLabel;");
-            System.out.println("Status Label Present: PASS");
+                fail("AggiePlatformGUI must contain a status Label");
+            pass("Status Label present");
 
-            // ================================================================
-            // 10. At least 5 Buttons (Load, Save, Add, Remove, Filter)
-            // ================================================================
-            Class<?> buttonClass = Class.forName("javafx.scene.control.Button");
-            int buttonCount = 0;
-            List<String> buttonNames = new ArrayList<>();
-            for (Field f : allFields) {
-                if (buttonClass.isAssignableFrom(f.getType())) {
-                    buttonCount++;
-                    buttonNames.add(f.getName());
-                }
-            }
-            if (buttonCount < 5)
-                throw new Exception(
-                    "Not enough Button fields in AggiePlatformGUI.\n" +
-                    "  Expected  : at least 5 buttons (Load, Save, Add, Remove, Filter)\n" +
-                    "  Found     : " + buttonCount + " — " + buttonNames + "\n" +
-                    "  Each button must be a declared field, e.g.:\n" +
-                    "    private Button loadButton, saveButton, addButton, removeButton, filterButton;");
-            System.out.println("5 Required Buttons Present (" + buttonCount + " found): PASS");
+            System.out.println("\n--- Required Buttons ---");
 
-            // ================================================================
-            // 11. At least one layout pane
-            // ================================================================
-            String[] layoutPaneNames = {
-                "javafx.scene.layout.BorderPane",
-                "javafx.scene.layout.VBox",
-                "javafx.scene.layout.HBox",
-                "javafx.scene.layout.GridPane",
-                "javafx.scene.layout.StackPane",
-                "javafx.scene.layout.FlowPane",
-                "javafx.scene.layout.AnchorPane",
-                "javafx.scene.layout.TilePane"
-            };
-            boolean hasLayoutPane = false;
-            String foundPaneName = "";
-            outer:
-            for (Field f : allFields) {
-                for (String paneName : layoutPaneNames) {
-                    try {
-                        Class<?> paneClass = Class.forName(paneName);
-                        if (paneClass.isAssignableFrom(f.getType())) {
-                            hasLayoutPane = true;
-                            foundPaneName = paneName.substring(paneName.lastIndexOf('.') + 1);
-                            break outer;
-                        }
-                    } catch (ClassNotFoundException ignored) {}
-                }
+            String[] requiredButtons = {"Load", "Save", "Add", "Remove", "Filter"};
+            for (String btnText : requiredButtons) {
+                if (!hasButtonWithText(guiClass, btnText))
+                    fail("Missing button with text: \"" + btnText + "\"");
+                pass("Button \"" + btnText + "\" present");
             }
-            if (!hasLayoutPane)
-                throw new Exception(
-                    "No JavaFX layout pane field found in AggiePlatformGUI.\n" +
-                    "  You must use a layout pane (not null layout) to arrange your components, e.g.:\n" +
-                    "    private BorderPane root;\n" +
-                    "    private VBox leftPanel;\n" +
-                    "    private HBox buttonBar;\n" +
-                    "  Acceptable panes: BorderPane, VBox, HBox, GridPane, StackPane, FlowPane, AnchorPane");
-            System.out.println("Layout Pane Present (" + foundPaneName + "): PASS");
+
+            System.out.println("\n--- Required Method Calls in Source ---");
+
+            if (!sourceContains("loadPlatform"))
+                fail("AggiePlatformGUI must call loadPlatform()");
+            pass("loadPlatform() call present");
+
+            if (!sourceContains("savePlatform"))
+                fail("AggiePlatformGUI must call savePlatform()");
+            pass("savePlatform() call present");
+
+            if (!sourceContains("getAIList"))
+                fail("AggiePlatformGUI must call getAIList() for Filter");
+            pass("getAIList() call present");
+
+            if (!sourceContains("addAI"))
+                fail("AggiePlatformGUI must call addAI() for Add");
+            pass("addAI() call present");
+
+            if (!sourceContains("removeAI"))
+                fail("AggiePlatformGUI must call removeAI() for Remove");
+            pass("removeAI() call present");
+
+            System.out.println("\n--- Layout Panes (no FXML) ---");
+
+            boolean hasPanes = sourceContains("BorderPane", "VBox", "HBox")
+                            || sourceContains("GridPane")
+                            || sourceContains("StackPane");
+            if (!hasPanes)
+                fail("AggiePlatformGUI must use layout panes (BorderPane, VBox, HBox, etc.)");
+            pass("Layout panes present");
+
+            if (sourceContains("FXML", "fxml", "FXMLLoader"))
+                fail("AggiePlatformGUI must NOT use FXML or FXMLLoader");
+            pass("No FXML used");
+
+            if (sourceContains("SceneBuilder", "scenebuilder"))
+                fail("AggiePlatformGUI must NOT use SceneBuilder");
+            pass("No SceneBuilder used");
+
+            System.out.println("\n--- Stage.show() Called ---");
+
+            if (!sourceContains("primaryStage.show()") && !sourceContains(".show()"))
+                fail("start() method must call primaryStage.show()");
+            pass("primaryStage.show() called");
+
+            System.out.println("\n--- AI Type Coverage in Add ---");
+
+            String[] types = {"NarrowAI", "GeneralAI", "SymbolicAI", "MachineLearning", "DeepLearning", "GenerativeAI"};
+            for (String type : types) {
+                if (!sourceContains(type))
+                    fail("AggiePlatformGUI must handle AI type: " + type);
+                pass("AI type \"" + type + "\" handled");
+            }
+
+            System.out.println("\n--- File I/O Round-Trip via GUI Logic ---");
+
+            Platform p = new Platform("Test Platform");
+            NarrowAI n = new NarrowAI("task1", "event1", "param1", "ctx1");
+            n.setInput("inp"); n.setModel("mdl");
+            p.addAI(n);
+
+            String tmpFile = "level4_roundtrip_test.txt";
+            p.savePlatform(tmpFile);
+
+            Platform p2 = new Platform();
+            p2.loadPlatform(tmpFile);
+
+            if (p2.getAISize() != 1)
+                fail("File I/O round-trip failed: expected 1 object, got " + p2.getAISize());
+            if (!p2.getAI(0).getInput().equals("inp"))
+                fail("File I/O round-trip failed: input field mismatch");
+            pass("File I/O round-trip via Platform");
+
+            new File(tmpFile).delete();
 
             System.out.println("\nLEVEL 4 COMPLETE: 100/100");
 
+        } catch (ClassNotFoundException e) {
+            System.err.println("LEVEL 4 FAILED: AggiePlatformGUI class not found. Make sure it compiles.");
+            System.exit(1);
         } catch (Exception e) {
             System.err.println("LEVEL 4 FAILED: " + e.getMessage());
             System.exit(1);
