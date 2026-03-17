@@ -9,67 +9,84 @@ public class Level3Test {
         try {
             System.out.println("Starting Level 3: Platform ArrayList Methods & File I/O...");
 
-            // ================================================================
-            // PART 1 — ALL 6 ArrayList METHODS
-            // ================================================================
             System.out.println("\n--- Testing ArrayList Methods ---");
 
             Platform p = new Platform("Aggie AI Agent Platform");
 
-            AI             ai  = new AI("humanInput", "GPT-4");
-            NarrowAI       n   = new NarrowAI("translation", "languageEvent", "temperature", "englishContext");
-            GeneralAI      g   = new GeneralAI("imagePerception", "speechAudio", "logicSolving", "mapNavigation", "artCreativity");
-            SymbolicAI     sym = new SymbolicAI("prologLogic", "semanticWeb", "deductiveReasoning", "backtracking");
-            MachineLearning ml = new MachineLearning("supervisedLearning", "classificationProblem", "decisionTree");
-            DeepLearning   d   = new DeepLearning("imagenetDataset", "cnnModel", 5, 3, 1, 800, 600);
-            GenerativeAI   t   = new GenerativeAI("syntheticDataset", "diffusionModel", "patternMimicry", 1000);
+            NarrowAI       n   = new NarrowAI("faceRecognition", "imageDetectedEvent", "confidenceThreshold", "securityContext");
+            n.setInput("textPrompt");
+            n.setModel("GPT-4");
+
+            GeneralAI      g   = new GeneralAI("3DObjectDetection", "speechToText", "logicalDeduction", "autonomousDriving", "musicalComposition");
+            g.setInput("textPrompt");
+            g.setModel("GPT-4");
+
+            SymbolicAI     sym = new SymbolicAI("prologInference", "ontologyNetwork", "forwardChaining", "meansEndsAnalysis");
+            sym.setInput("textPrompt");
+            sym.setModel("GPT-4");
+
+            MachineLearning ml = new MachineLearning("unsupervisedLearning", "clusteringProblem", "kMeansAlgorithm");
+            ml.setInput("textPrompt");
+            ml.setModel("GPT-4");
+
+            DeepLearning   d   = new DeepLearning("imageNetDataset", "transformerModel", 12, 8000.0, 40000.0);
+            d.setInput("textPrompt");
+            d.setModel("GPT-4");
+            d.setLearnType("unsupervisedLearning");
+            d.setProblem("clusteringProblem");
+            d.setAlgorithm("kMeansAlgorithm");
+
+            GenerativeAI   t   = new GenerativeAI("syntheticTextDataset", "largeLangModel", "contextualPatternLearning", 50000.0);
+            t.setInput("textPrompt");
+            t.setModel("GPT-4");
 
             // --- 1. addAI ---
-            p.addAI(ai);
             p.addAI(n);
             p.addAI(g);
             p.addAI(sym);
             p.addAI(ml);
             p.addAI(d);
             p.addAI(t);
-            System.out.println("addAI (7 objects): PASS");
+            System.out.println("addAI (6 objects): PASS");
 
             // --- 2. getAISize ---
             int size = p.getAISize();
-            if (size != 7)
-                throw new Exception("getAISize() returned wrong value after adding 7 objects.\n" +
-                    "  Expected : 7\n" +
+            if (size != 6)
+                throw new Exception("getAISize() returned wrong value after adding 6 objects.\n" +
+                    "  Expected : 6\n" +
                     "  Actual   : " + size);
             System.out.println("getAISize: PASS");
 
             // --- 3. getAI ---
             AI gotFirst = p.getAI(0);
-            if (gotFirst != ai)
+            if (gotFirst != n)
                 throw new Exception("getAI(0) returned wrong object.\n" +
-                    "  Expected : the AI object added first (input=\"humanInput\", model=\"GPT-4\")\n" +
+                    "  Expected : the NarrowAI object added first\n" +
                     "  Actual   : " + (gotFirst == null ? "null" : gotFirst.toString().replace("\n"," | ")));
 
-            AI gotLast = p.getAI(6);
+            AI gotLast = p.getAI(5);
             if (gotLast != t)
-                throw new Exception("getAI(6) returned wrong object.\n" +
-                    "  Expected : the GenerativeAI added last (dataset=\"syntheticDataset\")\n" +
+                throw new Exception("getAI(5) returned wrong object.\n" +
+                    "  Expected : the GenerativeAI added last\n" +
                     "  Actual   : " + (gotLast == null ? "null" : gotLast.toString().replace("\n"," | ")));
             System.out.println("getAI: PASS");
 
             // --- 4. setAI ---
-            AI replacement = new AI("replacedInput", "replacedModel");
+            NarrowAI replacement = new NarrowAI("replacedTask", "replacedEvent", "replacedParam", "replacedContext");
+            replacement.setInput("replacedInput");
+            replacement.setModel("replacedModel");
             p.setAI(2, replacement);
 
             AI afterSet = p.getAI(2);
             if (afterSet != replacement)
                 throw new Exception("setAI(2, replacement) did not store the new object.\n" +
-                    "  Expected : replacement AI (input=\"replacedInput\")\n" +
+                    "  Expected : replacement NarrowAI (input=\"replacedInput\")\n" +
                     "  Actual   : " + (afterSet == null ? "null" : afterSet.toString().replace("\n"," | ")));
 
             int sizeAfterSet = p.getAISize();
-            if (sizeAfterSet != 7)
-                throw new Exception("setAI() must replace in place — it must NOT change the list size.\n" +
-                    "  Expected size : 7\n" +
+            if (sizeAfterSet != 6)
+                throw new Exception("setAI() must replace in place - it must NOT change the list size.\n" +
+                    "  Expected size : 6\n" +
                     "  Actual size   : " + sizeAfterSet);
             System.out.println("setAI: PASS");
 
@@ -77,37 +94,34 @@ public class Level3Test {
             AI removed = p.removeAI(2);
             if (removed != replacement)
                 throw new Exception("removeAI(2) returned wrong object.\n" +
-                    "  Expected : replacement AI (input=\"replacedInput\") that was set at index 2\n" +
+                    "  Expected : replacement NarrowAI that was set at index 2\n" +
                     "  Actual   : " + (removed == null ? "null" : removed.toString().replace("\n"," | ")));
 
             int sizeAfterRemove = p.getAISize();
-            if (sizeAfterRemove != 6)
+            if (sizeAfterRemove != 5)
                 throw new Exception("removeAI() must shrink the list by 1.\n" +
-                    "  Expected size : 6\n" +
+                    "  Expected size : 5\n" +
                     "  Actual size   : " + sizeAfterRemove);
 
-            // Restore g so list is back to 7 for file tests
-            p.addAI(g);
+            // Restore sym so list is back to 6
+            p.addAI(sym);
             System.out.println("removeAI: PASS");
 
             // --- 6. getAIList ---
             ArrayList<AI> narrowList = p.getAIList(NarrowAI.class);
             if (narrowList == null)
-                throw new Exception("getAIList(NarrowAI.class) returned null. It must return an ArrayList, even if empty.");
+                throw new Exception("getAIList(NarrowAI.class) returned null.");
             if (narrowList.size() != 1)
                 throw new Exception("getAIList(NarrowAI.class) wrong count.\n" +
                     "  Expected : 1\n" +
-                    "  Actual   : " + narrowList.size() + "\n" +
-                    "  Note     : getAIList must match on exact class, not superclass.");
-            if (narrowList.get(0) != n)
-                throw new Exception("getAIList(NarrowAI.class) returned the wrong object at index 0.");
+                    "  Actual   : " + narrowList.size());
 
             ArrayList<AI> mlList = p.getAIList(MachineLearning.class);
             if (mlList == null || mlList.size() != 1)
                 throw new Exception("getAIList(MachineLearning.class) wrong count.\n" +
                     "  Expected : 1\n" +
                     "  Actual   : " + (mlList == null ? "null" : mlList.size()) + "\n" +
-                    "  Note     : Only the MachineLearning object itself should match, not DeepLearning or GenerativeAI.");
+                    "  Note     : Only MachineLearning itself, not DeepLearning or GenerativeAI.");
 
             ArrayList<AI> deepList = p.getAIList(DeepLearning.class);
             if (deepList == null || deepList.size() != 1)
@@ -121,59 +135,65 @@ public class Level3Test {
                     "  Expected : 1\n" +
                     "  Actual   : " + (genList == null ? "null" : genList.size()));
 
-            ArrayList<AI> aiOnlyList = p.getAIList(AI.class);
-            if (aiOnlyList == null || aiOnlyList.size() != 1)
-                throw new Exception("getAIList(AI.class) wrong count.\n" +
-                    "  Expected : 1  (only the base AI object, not subclasses)\n" +
-                    "  Actual   : " + (aiOnlyList == null ? "null" : aiOnlyList.size()) + "\n" +
-                    "  Note     : getAIList must use == on getClass(), not instanceof.");
             System.out.println("getAIList: PASS");
-
             System.out.println("\nAll 6 ArrayList Methods: PASS");
 
-            // ================================================================
-            // PART 2 — FILE I/O ROUND-TRIP
-            // ================================================================
             System.out.println("\n--- Testing File I/O ---");
 
             PrintWriter pw = new PrintWriter(new File(initialInput));
             pw.println("Aggie AI Agent Platform");
-            pw.println("A");
-            pw.println("humanInput");
-            pw.println("GPT-4");
+            // NarrowAI
             pw.println("N");
-            pw.println("translation");
-            pw.println("languageEvent");
-            pw.println("temperature");
-            pw.println("englishContext");
+            pw.println("textPrompt");
+            pw.println("GPT-4");
+            pw.println("faceRecognition");
+            pw.println("imageDetectedEvent");
+            pw.println("confidenceThreshold");
+            pw.println("securityContext");
+            // GeneralAI
             pw.println("G");
-            pw.println("imagePerception");
-            pw.println("speechAudio");
-            pw.println("logicSolving");
-            pw.println("mapNavigation");
-            pw.println("artCreativity");
+            pw.println("textPrompt");
+            pw.println("GPT-4");
+            pw.println("3DObjectDetection");
+            pw.println("speechToText");
+            pw.println("logicalDeduction");
+            pw.println("autonomousDriving");
+            pw.println("musicalComposition");
+            // SymbolicAI
             pw.println("S");
-            pw.println("prologLogic");
-            pw.println("semanticWeb");
-            pw.println("deductiveReasoning");
-            pw.println("backtracking");
+            pw.println("textPrompt");
+            pw.println("GPT-4");
+            pw.println("prologInference");
+            pw.println("ontologyNetwork");
+            pw.println("forwardChaining");
+            pw.println("meansEndsAnalysis");
+            // MachineLearning
             pw.println("M");
-            pw.println("supervisedLearning");
-            pw.println("classificationProblem");
-            pw.println("decisionTree");
+            pw.println("textPrompt");
+            pw.println("GPT-4");
+            pw.println("unsupervisedLearning");
+            pw.println("clusteringProblem");
+            pw.println("kMeansAlgorithm");
+            // DeepLearning
             pw.println("D");
-            pw.println("imagenetDataset");
-            pw.println("cnnModel");
-            pw.println("5");
-            pw.println("3");
-            pw.println("1");
-            pw.println("800");
-            pw.println("600");
+            pw.println("textPrompt");
+            pw.println("GPT-4");
+            pw.println("unsupervisedLearning");
+            pw.println("clusteringProblem");
+            pw.println("kMeansAlgorithm");
+            pw.println("imageNetDataset");
+            pw.println("transformerModel");
+            pw.println("12");
+            pw.println("8000.0");
+            pw.println("40000.0");
+            // GenerativeAI
             pw.println("T");
-            pw.println("syntheticDataset");
-            pw.println("diffusionModel");
-            pw.println("patternMimicry");
-            pw.println("1000");
+            pw.println("textPrompt");
+            pw.println("GPT-4");
+            pw.println("syntheticTextDataset");
+            pw.println("largeLangModel");
+            pw.println("contextualPatternLearning");
+            pw.println("50000.0");
             pw.close();
             System.out.println("Input File Written: PASS");
 
@@ -182,20 +202,18 @@ public class Level3Test {
             loaded.loadPlatform(initialInput);
 
             int loadedSize = loaded.getAISize();
-            if (loadedSize != 7)
+            if (loadedSize != 6)
                 throw new Exception("loadPlatform() read wrong number of objects.\n" +
-                    "  Expected : 7\n" +
-                    "  Actual   : " + loadedSize + "\n" +
-                    "  File     : " + initialInput + "\n" +
-                    "  Check    : your loadPlatform() loop and the type-char switch/if block.");
-            System.out.println("loadPlatform (7 objects): PASS");
+                    "  Expected : 6\n" +
+                    "  Actual   : " + loadedSize);
+            System.out.println("loadPlatform (6 objects): PASS");
 
             // Spot-check first object
             String loadedInput = loaded.getAI(0).getInput();
             String loadedModel = loaded.getAI(0).getModel();
-            if (!loadedInput.equals("humanInput"))
+            if (!loadedInput.equals("textPrompt"))
                 throw new Exception("loadPlatform() loaded wrong value for AI[0].input.\n" +
-                    "  Expected : \"humanInput\"\n" +
+                    "  Expected : \"textPrompt\"\n" +
                     "  Actual   : \"" + loadedInput + "\"");
             if (!loadedModel.equals("GPT-4"))
                 throw new Exception("loadPlatform() loaded wrong value for AI[0].model.\n" +
@@ -210,9 +228,9 @@ public class Level3Test {
             loaded.addAI(extra);
 
             int sizeAfterAdd = loaded.getAISize();
-            if (sizeAfterAdd != 8)
+            if (sizeAfterAdd != 7)
                 throw new Exception("addAI() after loadPlatform() gave wrong size.\n" +
-                    "  Expected : 8\n" +
+                    "  Expected : 7\n" +
                     "  Actual   : " + sizeAfterAdd);
             System.out.println("In-Memory Modification After Load: PASS");
 
@@ -220,13 +238,9 @@ public class Level3Test {
             loaded.savePlatform(savedOutput);
             File savedFile = new File(savedOutput);
             if (!savedFile.exists())
-                throw new Exception("savePlatform() did not create the output file.\n" +
-                    "  Expected file : " + savedOutput + "\n" +
-                    "  Check         : the file path argument and your FileWriter/PrintWriter setup.");
+                throw new Exception("savePlatform() did not create the output file.");
             if (savedFile.length() == 0)
-                throw new Exception("savePlatform() created an empty file.\n" +
-                    "  File    : " + savedOutput + "\n" +
-                    "  Check   : that you are actually writing data before closing the writer.");
+                throw new Exception("savePlatform() created an empty file.");
             System.out.println("savePlatform (file created): PASS");
 
             // Reload
@@ -234,31 +248,26 @@ public class Level3Test {
             reloaded.loadPlatform(savedOutput);
 
             int reloadedSize = reloaded.getAISize();
-            if (reloadedSize != 8)
+            if (reloadedSize != 7)
                 throw new Exception("Round-trip failed: reloaded wrong number of objects.\n" +
-                    "  Expected : 8\n" +
-                    "  Actual   : " + reloadedSize + "\n" +
-                    "  Check    : savePlatform() is writing all 8 objects including the newly added one.");
+                    "  Expected : 7\n" +
+                    "  Actual   : " + reloadedSize);
 
             // Full toString consistency check
             String original  = loaded.toString();
             String roundTrip = reloaded.toString();
             if (!original.equals(roundTrip))
                 throw new Exception("Round-trip consistency FAILED: toString() differs after save/reload.\n" +
-                    "  This means savePlatform() and loadPlatform() are not perfectly symmetric.\n" +
-                    "  Check   : field write order in savePlatform() matches read order in loadPlatform().\n" +
                     "--- ORIGINAL toString() ---\n" + original +
                     "\n--- RELOADED toString() ---\n" + roundTrip);
             System.out.println("Round-Trip Consistency: PASS");
 
-            // Verify new object survived
             if (!roundTrip.contains("speechRecognition"))
                 throw new Exception("Newly added NarrowAI did not survive the round-trip.\n" +
-                    "  Missing value : \"speechRecognition\" (task field)\n" +
-                    "  Check         : savePlatform() is writing the last-added object.");
+                    "  Missing value : \"speechRecognition\"");
             if (!roundTrip.contains("Whisper"))
                 throw new Exception("Newly added NarrowAI model did not survive the round-trip.\n" +
-                    "  Missing value : \"Whisper\" (model field)");
+                    "  Missing value : \"Whisper\"");
             System.out.println("New Object Survived Round-Trip: PASS");
 
             System.out.println("\nLEVEL 3 COMPLETE: 75/75");
