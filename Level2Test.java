@@ -1,6 +1,5 @@
 public class Level2Test {
 
-    // Helper: format a getter failure with expected vs actual
     static void checkStr(String className, String field, String expected, String actual) throws Exception {
         if (!expected.equals(actual))
             throw new Exception(className + ": " + field + "() returned wrong value.\n" +
@@ -10,6 +9,13 @@ public class Level2Test {
 
     static void checkInt(String className, String field, int expected, int actual) throws Exception {
         if (expected != actual)
+            throw new Exception(className + ": " + field + "() returned wrong value.\n" +
+                "  Expected : " + expected + "\n" +
+                "  Actual   : " + actual);
+    }
+
+    static void checkDouble(String className, String field, double expected, double actual) throws Exception {
+        if (Double.compare(expected, actual) != 0)
             throw new Exception(className + ": " + field + "() returned wrong value.\n" +
                 "  Expected : " + expected + "\n" +
                 "  Actual   : " + actual);
@@ -36,6 +42,36 @@ public class Level2Test {
             String sep = System.lineSeparator();
 
             // ================================================================
+            // AI CLASS - tested via NarrowAI since AI is abstract
+            // ================================================================
+            System.out.println("\n--- Testing AI (via NarrowAI) ---");
+
+            NarrowAI ai = new NarrowAI();
+            System.out.println("AI No-Arg Constructor: PASS");
+
+            ai.setInput("humanInput");
+            ai.setModel("GPT-4");
+            checkStr("AI", "getInput", "humanInput", ai.getInput());
+            checkStr("AI", "getModel", "GPT-4",      ai.getModel());
+            System.out.println("AI Setters/Getters: PASS");
+
+            NarrowAI ai2 = new NarrowAI("translation", "languageEvent", "temperature", "englishContext");
+            ai2.setInput("textInput");
+            ai2.setModel("BERT");
+            checkStr("AI", "getInput [args constructor param 1]", "textInput", ai2.getInput());
+            checkStr("AI", "getModel [args constructor param 2]", "BERT",      ai2.getModel());
+            System.out.println("AI Args Constructor: PASS");
+
+            NarrowAI aiStr_obj = new NarrowAI();
+            aiStr_obj.setInput("textInput");
+            aiStr_obj.setModel("BERT");
+            String aiStr = aiStr_obj.toString();
+            checkToStringPrefix("AI", 'N', aiStr);
+            checkToStringContains("AI", "input", "textInput", aiStr);
+            checkToStringContains("AI", "model", "BERT",      aiStr);
+            System.out.println("AI toString: PASS");
+
+            // ================================================================
             // NarrowAI CLASS
             // ================================================================
             System.out.println("\n--- Testing NarrowAI ---");
@@ -49,21 +85,21 @@ public class Level2Test {
             n.setEvent("languageEvent");
             n.setParameter("temperature");
             n.setContext("englishContext");
-            checkStr("NarrowAI", "getInput",     "queryInput",     n.getInput());
-            checkStr("NarrowAI", "getModel",     "BERT",           n.getModel());
-            checkStr("NarrowAI", "getTask",      "translation",    n.getTask());
-            checkStr("NarrowAI", "getEvent",     "languageEvent",  n.getEvent());
-            checkStr("NarrowAI", "getParameter", "temperature",    n.getParameter());
-            checkStr("NarrowAI", "getContext",   "englishContext",  n.getContext());
+            checkStr("NarrowAI", "getInput",     "queryInput",    n.getInput());
+            checkStr("NarrowAI", "getModel",     "BERT",          n.getModel());
+            checkStr("NarrowAI", "getTask",      "translation",   n.getTask());
+            checkStr("NarrowAI", "getEvent",     "languageEvent", n.getEvent());
+            checkStr("NarrowAI", "getParameter", "temperature",   n.getParameter());
+            checkStr("NarrowAI", "getContext",   "englishContext", n.getContext());
             System.out.println("NarrowAI Setters/Getters: PASS");
 
             NarrowAI n2 = new NarrowAI("translation", "languageEvent", "temperature", "englishContext");
             n2.setInput("queryInput");
             n2.setModel("BERT");
-            checkStr("NarrowAI", "getTask      [args constructor param 1]", "translation",    n2.getTask());
-            checkStr("NarrowAI", "getEvent     [args constructor param 2]", "languageEvent",  n2.getEvent());
-            checkStr("NarrowAI", "getParameter [args constructor param 3]", "temperature",    n2.getParameter());
-            checkStr("NarrowAI", "getContext   [args constructor param 4]", "englishContext",  n2.getContext());
+            checkStr("NarrowAI", "getTask      [args constructor param 1]", "translation",   n2.getTask());
+            checkStr("NarrowAI", "getEvent     [args constructor param 2]", "languageEvent", n2.getEvent());
+            checkStr("NarrowAI", "getParameter [args constructor param 3]", "temperature",   n2.getParameter());
+            checkStr("NarrowAI", "getContext   [args constructor param 4]", "englishContext", n2.getContext());
             System.out.println("NarrowAI Args Constructor: PASS");
 
             String nStr = n2.toString();
@@ -91,30 +127,30 @@ public class Level2Test {
             g.setProblemSolving("logicSolving");
             g.setNavigation("mapNavigation");
             g.setCreativity("artCreativity");
-            checkStr("GeneralAI", "getInput",           "visionInput",     g.getInput());
-            checkStr("GeneralAI", "getModel",           "AGI-1",           g.getModel());
-            checkStr("GeneralAI", "getVisualPerception","imagePerception",  g.getVisualPerception());
-            checkStr("GeneralAI", "getAudioPerception", "speechAudio",     g.getAudioPerception());
-            checkStr("GeneralAI", "getProblemSolving",  "logicSolving",    g.getProblemSolving());
-            checkStr("GeneralAI", "getNavigation",      "mapNavigation",   g.getNavigation());
-            checkStr("GeneralAI", "getCreativity",      "artCreativity",   g.getCreativity());
+            checkStr("GeneralAI", "getInput",            "visionInput",    g.getInput());
+            checkStr("GeneralAI", "getModel",            "AGI-1",          g.getModel());
+            checkStr("GeneralAI", "getVisualPerception", "imagePerception", g.getVisualPerception());
+            checkStr("GeneralAI", "getAudioPerception",  "speechAudio",    g.getAudioPerception());
+            checkStr("GeneralAI", "getProblemSolving",   "logicSolving",   g.getProblemSolving());
+            checkStr("GeneralAI", "getNavigation",       "mapNavigation",  g.getNavigation());
+            checkStr("GeneralAI", "getCreativity",       "artCreativity",  g.getCreativity());
             System.out.println("GeneralAI Setters/Getters: PASS");
 
             GeneralAI g2 = new GeneralAI("imagePerception", "speechAudio", "logicSolving", "mapNavigation", "artCreativity");
             checkStr("GeneralAI", "getVisualPerception [args constructor param 1]", "imagePerception", g2.getVisualPerception());
-            checkStr("GeneralAI", "getAudioPerception  [args constructor param 2]", "speechAudio",     g2.getAudioPerception());
-            checkStr("GeneralAI", "getProblemSolving   [args constructor param 3]", "logicSolving",    g2.getProblemSolving());
-            checkStr("GeneralAI", "getNavigation       [args constructor param 4]", "mapNavigation",   g2.getNavigation());
-            checkStr("GeneralAI", "getCreativity       [args constructor param 5]", "artCreativity",   g2.getCreativity());
+            checkStr("GeneralAI", "getAudioPerception  [args constructor param 2]", "speechAudio",    g2.getAudioPerception());
+            checkStr("GeneralAI", "getProblemSolving   [args constructor param 3]", "logicSolving",   g2.getProblemSolving());
+            checkStr("GeneralAI", "getNavigation       [args constructor param 4]", "mapNavigation",  g2.getNavigation());
+            checkStr("GeneralAI", "getCreativity       [args constructor param 5]", "artCreativity",  g2.getCreativity());
             System.out.println("GeneralAI Args Constructor: PASS");
 
             String gStr = g2.toString();
             checkToStringPrefix("GeneralAI", 'G', gStr);
             checkToStringContains("GeneralAI", "visualPerception", "imagePerception", gStr);
-            checkToStringContains("GeneralAI", "audioPerception",  "speechAudio",     gStr);
-            checkToStringContains("GeneralAI", "problemSolving",   "logicSolving",    gStr);
-            checkToStringContains("GeneralAI", "navigation",       "mapNavigation",   gStr);
-            checkToStringContains("GeneralAI", "creativity",       "artCreativity",   gStr);
+            checkToStringContains("GeneralAI", "audioPerception",  "speechAudio",    gStr);
+            checkToStringContains("GeneralAI", "problemSolving",   "logicSolving",   gStr);
+            checkToStringContains("GeneralAI", "navigation",       "mapNavigation",  gStr);
+            checkToStringContains("GeneralAI", "creativity",       "artCreativity",  gStr);
             System.out.println("GeneralAI toString: PASS");
 
             // ================================================================
@@ -131,12 +167,12 @@ public class Level2Test {
             s.setSemanticNetwork("semanticWeb");
             s.setReasoning("deductiveReasoning");
             s.setProblemSolMethod("backtracking");
-            checkStr("SymbolicAI", "getInput",          "ruleInput",          s.getInput());
-            checkStr("SymbolicAI", "getModel",          "Expert-1",           s.getModel());
-            checkStr("SymbolicAI", "getLogicProgram",   "prologLogic",        s.getLogicProgram());
-            checkStr("SymbolicAI", "getSemanticNetwork","semanticWeb",        s.getSemanticNetwork());
-            checkStr("SymbolicAI", "getReasoning",      "deductiveReasoning", s.getReasoning());
-            checkStr("SymbolicAI", "getProblemSolMethod","backtracking",      s.getProblemSolMethod());
+            checkStr("SymbolicAI", "getInput",           "ruleInput",          s.getInput());
+            checkStr("SymbolicAI", "getModel",           "Expert-1",           s.getModel());
+            checkStr("SymbolicAI", "getLogicProgram",    "prologLogic",        s.getLogicProgram());
+            checkStr("SymbolicAI", "getSemanticNetwork", "semanticWeb",        s.getSemanticNetwork());
+            checkStr("SymbolicAI", "getReasoning",       "deductiveReasoning", s.getReasoning());
+            checkStr("SymbolicAI", "getProblemSolMethod","backtracking",       s.getProblemSolMethod());
             System.out.println("SymbolicAI Setters/Getters: PASS");
 
             SymbolicAI s2 = new SymbolicAI("prologLogic", "semanticWeb", "deductiveReasoning", "backtracking");
@@ -203,49 +239,41 @@ public class Level2Test {
             d.setDataset("imagenetDataset");
             d.setNnModel("cnnModel");
             d.setLayers(5);
-            d.setHyperparameters(3);
-            d.setBias(1);
-            d.setTestSet(800);
-            d.setTrainset(600);
-            checkStr("DeepLearning", "getInput",          "imageInput",         d.getInput());
-            checkStr("DeepLearning", "getModel",          "ResNet",             d.getModel());
-            checkStr("DeepLearning", "getLearnType",      "deepLearning",       d.getLearnType());
-            checkStr("DeepLearning", "getProblem",        "imageClassification",d.getProblem());
-            checkStr("DeepLearning", "getAlgorithm",      "backpropagation",    d.getAlgorithm());
-            checkStr("DeepLearning", "getDataset",        "imagenetDataset",    d.getDataset());
-            checkStr("DeepLearning", "getNnModel",        "cnnModel",           d.getNnModel());
-            checkInt("DeepLearning", "getLayers",         5,   d.getLayers());
-            checkInt("DeepLearning", "getHyperparameters",3,   d.getHyperparameters());
-            checkInt("DeepLearning", "getBias",           1,   d.getBias());
-            checkInt("DeepLearning", "getTestSet",        800, d.getTestSet());
-            checkInt("DeepLearning", "getTrainset",       600, d.getTrainset());
+            d.setTestSet(800.0);
+            d.setTrainset(600.0);
+            checkStr   ("DeepLearning", "getInput",    "imageInput",          d.getInput());
+            checkStr   ("DeepLearning", "getModel",    "ResNet",              d.getModel());
+            checkStr   ("DeepLearning", "getLearnType","deepLearning",        d.getLearnType());
+            checkStr   ("DeepLearning", "getProblem",  "imageClassification", d.getProblem());
+            checkStr   ("DeepLearning", "getAlgorithm","backpropagation",     d.getAlgorithm());
+            checkStr   ("DeepLearning", "getDataset",  "imagenetDataset",     d.getDataset());
+            checkStr   ("DeepLearning", "getNnModel",  "cnnModel",            d.getNnModel());
+            checkInt   ("DeepLearning", "getLayers",   5,     d.getLayers());
+            checkDouble("DeepLearning", "getTestSet",  800.0, d.getTestSet());
+            checkDouble("DeepLearning", "getTrainset", 600.0, d.getTrainset());
             System.out.println("DeepLearning Setters/Getters: PASS");
 
-            DeepLearning d2 = new DeepLearning("imagenetDataset", "cnnModel", 5, 3, 1, 800, 600);
+            DeepLearning d2 = new DeepLearning("imagenetDataset", "cnnModel", 5, 800.0, 600.0);
             d2.setLearnType("deepLearning");
             d2.setProblem("imageClassification");
             d2.setAlgorithm("backpropagation");
-            checkStr("DeepLearning", "getDataset         [args constructor param 1]", "imagenetDataset", d2.getDataset());
-            checkStr("DeepLearning", "getNnModel         [args constructor param 2]", "cnnModel",        d2.getNnModel());
-            checkInt("DeepLearning", "getLayers          [args constructor param 3]", 5,   d2.getLayers());
-            checkInt("DeepLearning", "getHyperparameters [args constructor param 4]", 3,   d2.getHyperparameters());
-            checkInt("DeepLearning", "getBias            [args constructor param 5]", 1,   d2.getBias());
-            checkInt("DeepLearning", "getTestSet         [args constructor param 6]", 800, d2.getTestSet());
-            checkInt("DeepLearning", "getTrainset        [args constructor param 7]", 600, d2.getTrainset());
+            checkStr   ("DeepLearning", "getDataset  [args constructor param 1]", "imagenetDataset", d2.getDataset());
+            checkStr   ("DeepLearning", "getNnModel  [args constructor param 2]", "cnnModel",        d2.getNnModel());
+            checkInt   ("DeepLearning", "getLayers   [args constructor param 3]", 5,     d2.getLayers());
+            checkDouble("DeepLearning", "getTestSet  [args constructor param 4]", 800.0, d2.getTestSet());
+            checkDouble("DeepLearning", "getTrainset [args constructor param 5]", 600.0, d2.getTrainset());
             System.out.println("DeepLearning Args Constructor: PASS");
 
             String dStr = d2.toString();
             checkToStringPrefix("DeepLearning", 'D', dStr);
-            checkToStringContains("DeepLearning", "dataset (own)",          "imagenetDataset",    dStr);
-            checkToStringContains("DeepLearning", "nnModel",                "cnnModel",           dStr);
-            checkToStringContains("DeepLearning", "layers",                 "5",                  dStr);
-            checkToStringContains("DeepLearning", "hyperparameters",        "3",                  dStr);
-            checkToStringContains("DeepLearning", "bias",                   "1",                  dStr);
-            checkToStringContains("DeepLearning", "testSet",                "800",                dStr);
-            checkToStringContains("DeepLearning", "trainset",               "600",                dStr);
-            checkToStringContains("DeepLearning", "learnType (inherited)",  "deepLearning",       dStr);
-            checkToStringContains("DeepLearning", "problem (inherited)",    "imageClassification",dStr);
-            checkToStringContains("DeepLearning", "algorithm (inherited)",  "backpropagation",    dStr);
+            checkToStringContains("DeepLearning", "dataset",               "imagenetDataset",    dStr);
+            checkToStringContains("DeepLearning", "nnModel",               "cnnModel",           dStr);
+            checkToStringContains("DeepLearning", "layers",                "5",                  dStr);
+            checkToStringContains("DeepLearning", "testSet",               "800.0",              dStr);
+            checkToStringContains("DeepLearning", "trainset",              "600.0",              dStr);
+            checkToStringContains("DeepLearning", "learnType (inherited)", "deepLearning",       dStr);
+            checkToStringContains("DeepLearning", "problem (inherited)",   "imageClassification",dStr);
+            checkToStringContains("DeepLearning", "algorithm (inherited)", "backpropagation",    dStr);
             System.out.println("DeepLearning toString: PASS");
 
             // ================================================================
@@ -262,12 +290,12 @@ public class Level2Test {
             t.setGenerativeModels("diffusionModel");
             t.setLearnPatterns("patternMimicry");
             t.setTrainset(1000);
-            checkStr("GenerativeAI", "getInput",           "promptInput",     t.getInput());
-            checkStr("GenerativeAI", "getModel",           "GPT-4",           t.getModel());
-            checkStr("GenerativeAI", "getDataset",         "syntheticDataset",t.getDataset());
-            checkStr("GenerativeAI", "getGenerativeModels","diffusionModel",  t.getGenerativeModels());
-            checkStr("GenerativeAI", "getLearnPatterns",   "patternMimicry",  t.getLearnPatterns());
-            checkInt("GenerativeAI", "getTrainset",        1000,              t.getTrainset());
+            checkStr("GenerativeAI", "getInput",            "promptInput",     t.getInput());
+            checkStr("GenerativeAI", "getModel",            "GPT-4",           t.getModel());
+            checkStr("GenerativeAI", "getDataset",          "syntheticDataset",t.getDataset());
+            checkStr("GenerativeAI", "getGenerativeModels", "diffusionModel",  t.getGenerativeModels());
+            checkStr("GenerativeAI", "getLearnPatterns",    "patternMimicry",  t.getLearnPatterns());
+            checkInt("GenerativeAI", "getTrainset",         1000,              t.getTrainset());
             System.out.println("GenerativeAI Setters/Getters: PASS");
 
             GenerativeAI t2 = new GenerativeAI("syntheticDataset", "diffusionModel", "patternMimicry", 1000);
@@ -289,15 +317,15 @@ public class Level2Test {
             // INHERITANCE CHAIN
             // ================================================================
             System.out.println("\n--- Inheritance Chain ---");
-            if (!(n  instanceof AI))              throw new Exception("NarrowAI must extend AI. 'instanceof AI' returned false.");
-            if (!(g  instanceof AI))              throw new Exception("GeneralAI must extend AI. 'instanceof AI' returned false.");
-            if (!(s  instanceof AI))              throw new Exception("SymbolicAI must extend AI. 'instanceof AI' returned false.");
-            if (!(ml instanceof AI))              throw new Exception("MachineLearning must extend AI. 'instanceof AI' returned false.");
-            if (!(d  instanceof MachineLearning)) throw new Exception("DeepLearning must extend MachineLearning. 'instanceof MachineLearning' returned false.");
-            if (!(d  instanceof AI))              throw new Exception("DeepLearning must be a descendant of AI. 'instanceof AI' returned false.");
-            if (!(t  instanceof DeepLearning))    throw new Exception("GenerativeAI must extend DeepLearning. 'instanceof DeepLearning' returned false.");
-            if (!(t  instanceof MachineLearning)) throw new Exception("GenerativeAI must be a descendant of MachineLearning. 'instanceof MachineLearning' returned false.");
-            if (!(t  instanceof AI))              throw new Exception("GenerativeAI must be a descendant of AI. 'instanceof AI' returned false.");
+            if (!(n  instanceof AI))              throw new Exception("NarrowAI must extend AI.");
+            if (!(g  instanceof AI))              throw new Exception("GeneralAI must extend AI.");
+            if (!(s  instanceof AI))              throw new Exception("SymbolicAI must extend AI.");
+            if (!(ml instanceof AI))              throw new Exception("MachineLearning must extend AI.");
+            if (!(d  instanceof MachineLearning)) throw new Exception("DeepLearning must extend MachineLearning.");
+            if (!(d  instanceof AI))              throw new Exception("DeepLearning must be a descendant of AI.");
+            if (!(t  instanceof DeepLearning))    throw new Exception("GenerativeAI must extend DeepLearning.");
+            if (!(t  instanceof MachineLearning)) throw new Exception("GenerativeAI must be a descendant of MachineLearning.");
+            if (!(t  instanceof AI))              throw new Exception("GenerativeAI must be a descendant of AI.");
             System.out.println("Inheritance Chain: PASS");
 
             System.out.println("\nLEVEL 2 COMPLETE: 50/50");
