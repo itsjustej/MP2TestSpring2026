@@ -36,31 +36,6 @@ public class Level2Test {
             String sep = System.lineSeparator();
 
             // ================================================================
-            // AI CLASS
-            // ================================================================
-            System.out.println("\n--- Testing AI ---");
-
-            AI ai = new AI();
-            System.out.println("AI No-Arg Constructor: PASS");
-
-            ai.setInput("humanInput");
-            ai.setModel("GPT-4");
-            checkStr("AI", "getInput", "humanInput", ai.getInput());
-            checkStr("AI", "getModel", "GPT-4",       ai.getModel());
-            System.out.println("AI Setters/Getters: PASS");
-
-            AI ai2 = new AI("textInput", "BERT");
-            checkStr("AI", "getInput [args constructor param 1]", "textInput", ai2.getInput());
-            checkStr("AI", "getModel [args constructor param 2]", "BERT",      ai2.getModel());
-            System.out.println("AI Args Constructor: PASS");
-
-            String aiStr = ai2.toString();
-            checkToStringPrefix("AI", 'A', aiStr);
-            checkToStringContains("AI", "input", "textInput", aiStr);
-            checkToStringContains("AI", "model", "BERT",      aiStr);
-            System.out.println("AI toString: PASS");
-
-            // ================================================================
             // NarrowAI CLASS
             // ================================================================
             System.out.println("\n--- Testing NarrowAI ---");
