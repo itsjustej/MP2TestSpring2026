@@ -68,7 +68,7 @@ public class Level2Test {
         if (!sub.equals(expectedClass)) {
             try {
                 sub.getDeclaredField(fieldName);
-                // If we get here, the field WAS found in the subclass — that's the violation
+                // If we get here, the field WAS found in the subclass. that's the violation
                 throw new Exception(
                     "Field '" + fieldName + "' is re-declared in " + sub.getSimpleName() +
                     " but should only be declared in " + expectedClass.getSimpleName() + ".\n" +
