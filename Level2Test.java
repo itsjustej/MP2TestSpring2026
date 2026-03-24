@@ -75,7 +75,7 @@ public class Level2Test {
                     "  Fix: remove the field from " + sub.getSimpleName() +
                     " and use super() in the constructor to initialize it.");
             } catch (NoSuchFieldException e) {
-                // Good — field is NOT re-declared in the subclass
+                // Good field is NOT re-declared in the subclass
             }
         }
     }
@@ -417,7 +417,7 @@ public class Level2Test {
             //
             // Constructs objects using ONLY the args constructor (no setters),
             // then verifies that fields defined in parent classes are correctly
-            // populated — meaning the student's constructor called super().
+            // populated meaning the student's constructor called super().
             //
             // Note: Java enforces that super() is called somewhere, but students
             // can call super() with no-arg and then set fields manually below it.
@@ -429,7 +429,7 @@ public class Level2Test {
             // --- MachineLearning args constructor ---
             // new MachineLearning(learnType, problem, algorithm)
             // After construction (no setters), all three fields must be set.
-            // This is the baseline — also validates the args constructor itself.
+            // This is the baseline also validates the args constructor itself.
             MachineLearning mlChain = new MachineLearning("supervisedLearning", "classificationProblem", "decisionTree");
             checkStr("MachineLearning (super chain)", "getLearnType (no setter)", "supervisedLearning",    mlChain.getLearnType());
             checkStr("MachineLearning (super chain)", "getProblem   (no setter)", "classificationProblem", mlChain.getProblem());
