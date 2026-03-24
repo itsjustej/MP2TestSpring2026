@@ -1,5 +1,9 @@
 public class Level2Test {
 
+    // ================================================================
+    // STANDARD FIELD CHECKERS
+    // ================================================================
+
     static void checkStr(String className, String field, String expected, String actual) throws Exception {
         if (!expected.equals(actual))
             throw new Exception(className + ": " + field + "() returned wrong value.\n" +
@@ -34,6 +38,46 @@ public class Level2Test {
             throw new Exception(className + ".toString() is missing the value for '" + fieldName + "'.\n" +
                 "  Expected to contain : \"" + value + "\"\n" +
                 "  Full toString output:\n" + actual);
+    }
+
+    // ================================================================
+    // SUPER CONSTRUCTOR / FIELD OWNERSHIP CHECKER
+    //
+    // This verifies two things:
+    //   1. The field is actually declared in the expected parent class
+    //      (not just accessible via inheritance from somewhere else).
+    //   2. The subclass does NOT re-declare the same field, which would
+    //      shadow the parent's copy and bypass super() initialization.
+    //
+    // Common student mistake this catches:
+    //   - Copy-pasting a parent field (e.g. "private String learnType")
+    //     into a child class instead of removing it and relying on super().
+    // ================================================================
+    static void checkFieldDeclaredIn(Object obj, String fieldName, Class<?> expectedClass) throws Exception {
+        // Step 1: confirm the field exists in the expected parent class
+        try {
+            expectedClass.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            throw new Exception(
+                "Setup error in test: field '" + fieldName + "' is not declared in " +
+                expectedClass.getSimpleName() + ". Fix the test or the class.");
+        }
+
+        // Step 2: confirm the subclass does NOT re-declare the field (shadowing)
+        Class<?> sub = obj.getClass();
+        if (!sub.equals(expectedClass)) {
+            try {
+                sub.getDeclaredField(fieldName);
+                // If we get here, the field WAS found in the subclass — that's the violation
+                throw new Exception(
+                    "Field '" + fieldName + "' is re-declared in " + sub.getSimpleName() +
+                    " but should only be declared in " + expectedClass.getSimpleName() + ".\n" +
+                    "  Fix: remove the field from " + sub.getSimpleName() +
+                    " and use super() in the constructor to initialize it.");
+            } catch (NoSuchFieldException e) {
+                // Good — field is NOT re-declared in the subclass
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -327,6 +371,95 @@ public class Level2Test {
             if (!(t  instanceof MachineLearning)) throw new Exception("GenerativeAI must be a descendant of MachineLearning.");
             if (!(t  instanceof AI))              throw new Exception("GenerativeAI must be a descendant of AI.");
             System.out.println("Inheritance Chain: PASS");
+
+            // ================================================================
+            // FIELD OWNERSHIP CHECKS
+            //
+            // Verifies that each field is declared in the correct class and
+            // NOT re-declared in a subclass (which would shadow the parent
+            // field and bypass super() initialization).
+            // ================================================================
+            System.out.println("\n--- Field Ownership Checks ---");
+
+            // AI fields: must live in AI, not re-declared in any subclass
+            checkFieldDeclaredIn(n,  "input", AI.class);
+            checkFieldDeclaredIn(n,  "model", AI.class);
+            checkFieldDeclaredIn(g,  "input", AI.class);
+            checkFieldDeclaredIn(g,  "model", AI.class);
+            checkFieldDeclaredIn(s,  "input", AI.class);
+            checkFieldDeclaredIn(s,  "model", AI.class);
+            checkFieldDeclaredIn(ml, "input", AI.class);
+            checkFieldDeclaredIn(ml, "model", AI.class);
+            checkFieldDeclaredIn(d,  "input", AI.class);
+            checkFieldDeclaredIn(d,  "model", AI.class);
+            checkFieldDeclaredIn(t,  "input", AI.class);
+            checkFieldDeclaredIn(t,  "model", AI.class);
+
+            // MachineLearning fields: must live in MachineLearning, not re-declared in DeepLearning/GenerativeAI
+            checkFieldDeclaredIn(d, "learnType", MachineLearning.class);
+            checkFieldDeclaredIn(d, "problem",   MachineLearning.class);
+            checkFieldDeclaredIn(d, "algorithm", MachineLearning.class);
+            checkFieldDeclaredIn(t, "learnType", MachineLearning.class);
+            checkFieldDeclaredIn(t, "problem",   MachineLearning.class);
+            checkFieldDeclaredIn(t, "algorithm", MachineLearning.class);
+
+            // DeepLearning fields: must live in DeepLearning, not re-declared in GenerativeAI
+            checkFieldDeclaredIn(t, "dataset",  DeepLearning.class);
+            checkFieldDeclaredIn(t, "nnModel",  DeepLearning.class);
+            checkFieldDeclaredIn(t, "layers",   DeepLearning.class);
+            checkFieldDeclaredIn(t, "testSet",  DeepLearning.class);
+            checkFieldDeclaredIn(t, "trainset", DeepLearning.class);
+
+            System.out.println("Field Ownership Checks: PASS");
+
+            // ================================================================
+            // SUPER CONSTRUCTOR CHAIN CHECKS
+            //
+            // Constructs objects using ONLY the args constructor (no setters),
+            // then verifies that fields defined in parent classes are correctly
+            // populated — meaning the student's constructor called super().
+            //
+            // Note: Java enforces that super() is called somewhere, but students
+            // can call super() with no-arg and then set fields manually below it.
+            // These checks catch that pattern by verifying the VALUE was passed
+            // up the chain, not just that super() was syntactically present.
+            // ================================================================
+            System.out.println("\n--- Super Constructor Chain Checks ---");
+
+            // --- MachineLearning args constructor ---
+            // new MachineLearning(learnType, problem, algorithm)
+            // After construction (no setters), all three fields must be set.
+            // This is the baseline — also validates the args constructor itself.
+            MachineLearning mlChain = new MachineLearning("supervisedLearning", "classificationProblem", "decisionTree");
+            checkStr("MachineLearning (super chain)", "getLearnType (no setter)", "supervisedLearning",    mlChain.getLearnType());
+            checkStr("MachineLearning (super chain)", "getProblem   (no setter)", "classificationProblem", mlChain.getProblem());
+            checkStr("MachineLearning (super chain)", "getAlgorithm (no setter)", "decisionTree",          mlChain.getAlgorithm());
+
+            // --- DeepLearning args constructor must call super() up to MachineLearning ---
+            // new DeepLearning(dataset, nnModel, layers, testSet, trainset)
+            // DeepLearning's own fields should be set. We can't force learnType/problem/algorithm
+            // through DL's constructor signature, but we CAN verify DL's own fields are set
+            // purely via constructor (no setters) and that inherited getters still work.
+            DeepLearning dlChain = new DeepLearning("imagenetDataset", "cnnModel", 5, 800.0, 600.0);
+            checkStr   ("DeepLearning (super chain)", "getDataset  (no setter)", "imagenetDataset", dlChain.getDataset());
+            checkStr   ("DeepLearning (super chain)", "getNnModel  (no setter)", "cnnModel",        dlChain.getNnModel());
+            checkInt   ("DeepLearning (super chain)", "getLayers   (no setter)", 5,                 dlChain.getLayers());
+            checkDouble("DeepLearning (super chain)", "getTestSet  (no setter)", 800.0,             dlChain.getTestSet());
+            checkDouble("DeepLearning (super chain)", "getTrainset (no setter)", 600.0,             dlChain.getTrainset());
+
+            // --- GenerativeAI args constructor must call super() up to DeepLearning ---
+            // new GenerativeAI(dataset, generativeModels, learnPatterns, trainset)
+            // The key check: trainset, dataset, nnModel, layers, testSet are all declared
+            // in DeepLearning. If GenerativeAI re-declares them (field shadowing) OR sets
+            // them directly instead of calling super(), the field ownership check above
+            // would already fail. Here we confirm the VALUES flow through the chain.
+            GenerativeAI genChain = new GenerativeAI("syntheticDataset", "diffusionModel", "patternMimicry", 1000);
+            checkStr   ("GenerativeAI (super chain)", "getDataset          (no setter, inherited from DeepLearning)",  "syntheticDataset", genChain.getDataset());
+            checkStr   ("GenerativeAI (super chain)", "getGenerativeModels (no setter)",                               "diffusionModel",   genChain.getGenerativeModels());
+            checkStr   ("GenerativeAI (super chain)", "getLearnPatterns    (no setter)",                               "patternMimicry",   genChain.getLearnPatterns());
+            checkDouble("GenerativeAI (super chain)", "getTrainset         (no setter, inherited from DeepLearning)",  1000.0,            genChain.getTrainset());
+
+            System.out.println("Super Constructor Chain: PASS");
 
             System.out.println("\nLEVEL 2 COMPLETE: 50/50");
 
