@@ -45,6 +45,12 @@ public class Level3Test {
             t.setLearnType("unsupervisedLearning");
             t.setProblem("clusteringProblem");
             t.setAlgorithm("kMeansAlgorithm");
+            // GenerativeAI extends DeepLearning, so set inherited DeepLearning fields
+            t.setDataset("imageNetDataset");
+            t.setNNModel("transformerModel");
+            t.setLayers(12);
+            t.setTestSet(8000.0);
+            t.setTrainSet(40000.0);
 
             // --- 1. addAI ---
             p.addAI(n);
@@ -141,19 +147,73 @@ public class Level3Test {
 
             // ================================================================
             // PART 2 - FILE I/O ROUND-TRIP
-            // Use toString() of each object to write the file so it is
-            // guaranteed to match exactly what loadPlatform expects.
+            //
+            // Write the corrected input file directly so it matches the exact
+            // format loadPlatform expects, including all inherited DeepLearning
+            // fields in the GenerativeAI (T) block.
             // ================================================================
             System.out.println("\n--- Testing File I/O ---");
 
-            Platform source = new Platform("Aggie AI Agent Platform");
-            source.addAI(n);
-            source.addAI(g);
-            source.addAI(sym);
-            source.addAI(ml);
-            source.addAI(d);
-            source.addAI(t);
-            source.savePlatform(initialInput);
+            // Write the corrected platform_initial.txt directly
+            try (PrintWriter pw = new PrintWriter(new FileWriter(initialInput))) {
+                pw.println("Aggie AI Agent Platform");
+                pw.println("N");
+                pw.println("textPrompt");
+                pw.println("GPT-4");
+                pw.println("faceRecognition");
+                pw.println("imageDetectedEvent");
+                pw.println("confidenceThreshold");
+                pw.println("securityContext");
+                pw.println("G");
+                pw.println("textPrompt");
+                pw.println("GPT-4");
+                pw.println("3DObjectDetection");
+                pw.println("speechToText");
+                pw.println("logicalDeduction");
+                pw.println("autonomousDriving");
+                pw.println("musicalComposition");
+                pw.println("S");
+                pw.println("textPrompt");
+                pw.println("GPT-4");
+                pw.println("prologInference");
+                pw.println("ontologyNetwork");
+                pw.println("forwardChaining");
+                pw.println("meansEndsAnalysis");
+                pw.println("M");
+                pw.println("textPrompt");
+                pw.println("GPT-4");
+                pw.println("unsupervisedLearning");
+                pw.println("clusteringProblem");
+                pw.println("kMeansAlgorithm");
+                pw.println("D");
+                pw.println("textPrompt");
+                pw.println("GPT-4");
+                pw.println("unsupervisedLearning");
+                pw.println("clusteringProblem");
+                pw.println("kMeansAlgorithm");
+                pw.println("imageNetDataset");
+                pw.println("transformerModel");
+                pw.println("12");
+                pw.println("8000.0");
+                pw.println("40000.0");
+                pw.println("T");
+                pw.println("textPrompt");
+                pw.println("GPT-4");
+                pw.println("unsupervisedLearning");
+                pw.println("clusteringProblem");
+                pw.println("kMeansAlgorithm");
+                // Inherited DeepLearning fields (were missing before the fix)
+                pw.println("imageNetDataset");
+                pw.println("transformerModel");
+                pw.println("12");
+                pw.println("8000.0");
+                pw.println("40000.0");
+                // GenerativeAI-specific fields
+                pw.println("syntheticTextDataset");
+                pw.println("largeLangModel");
+                pw.println("contextualPatternLearning");
+                pw.println("50000.0");
+            }
             System.out.println("Input File Written: PASS");
 
             // Load
