@@ -193,6 +193,8 @@ public class Level3Test {
                 throw new Exception("loadPlatform() GenerativeAI inherited dataset wrong. Expected \"imageNetDataset\", got \"" + loadedGen.getDataset() + "\"");
             if (loadedGen.getTrainset() != 40000.0)
                 throw new Exception("loadPlatform() GenerativeAI inherited trainset wrong. Expected 40000.0, got " + loadedGen.getTrainset());
+            if (!loadedGen.getGenDataset().equals("syntheticTextDataset"))
+                throw new Exception("loadPlatform() GenerativeAI genDataset wrong. Expected \"syntheticTextDataset\", got \"" + loadedGen.getGenDataset() + "\"");
             if (!loadedGen.getGenerativeModels().equals("largeLangModel"))
                 throw new Exception("loadPlatform() GenerativeAI generativeModels wrong. Expected \"largeLangModel\", got \"" + loadedGen.getGenerativeModels() + "\"");
             if (loadedGen.getGenTrainset() != 50000.0)
