@@ -270,23 +270,25 @@ public class Level2Test {
             GenerativeAI t = new GenerativeAI();
             t.setInput("promptInput");
             t.setModel("GPT-4");
-            t.setDataset("syntheticDataset");       // inherited from DeepLearning
+            t.setGenDataset("syntheticDataset");    // GenerativeAI-specific dataset
             t.setGenerativeModels("diffusionModel");
             t.setLearnPatterns("patternMimicry");
-            t.setGenTrainset(1000.0);               // GenerativeAI-specific
+            t.setGenTrainset(1000.0);               // GenerativeAI-specific trainset
+            t.setDataset("imagenetDataset");        // inherited DeepLearning dataset
             t.setTrainset(500.0);                   // inherited DeepLearning trainset
-            checkStr   ("GenerativeAI", "getInput",            "promptInput",     t.getInput());
-            checkStr   ("GenerativeAI", "getModel",            "GPT-4",           t.getModel());
-            checkStr   ("GenerativeAI", "getDataset",          "syntheticDataset",t.getDataset());
-            checkStr   ("GenerativeAI", "getGenerativeModels", "diffusionModel",  t.getGenerativeModels());
-            checkStr   ("GenerativeAI", "getLearnPatterns",    "patternMimicry",  t.getLearnPatterns());
-            checkDouble("GenerativeAI", "getGenTrainset",      1000.0,            t.getGenTrainset());
-            checkDouble("GenerativeAI", "getTrainset",         500.0,             t.getTrainset());
+            checkStr   ("GenerativeAI", "getInput",            "promptInput",      t.getInput());
+            checkStr   ("GenerativeAI", "getModel",            "GPT-4",            t.getModel());
+            checkStr   ("GenerativeAI", "getGenDataset",       "syntheticDataset", t.getGenDataset());
+            checkStr   ("GenerativeAI", "getDataset",          "imagenetDataset",  t.getDataset());
+            checkStr   ("GenerativeAI", "getGenerativeModels", "diffusionModel",   t.getGenerativeModels());
+            checkStr   ("GenerativeAI", "getLearnPatterns",    "patternMimicry",   t.getLearnPatterns());
+            checkDouble("GenerativeAI", "getGenTrainset",      1000.0,             t.getGenTrainset());
+            checkDouble("GenerativeAI", "getTrainset",         500.0,              t.getTrainset());
             System.out.println("GenerativeAI Setters/Getters: PASS");
 
             // Constructor: (dataset, generativeModels, learnPatterns, genTrainset)
             GenerativeAI t2 = new GenerativeAI("syntheticDataset", "diffusionModel", "patternMimicry", 1000.0);
-            checkStr   ("GenerativeAI", "getDataset          [param 1]", "syntheticDataset", t2.getDataset());
+            checkStr   ("GenerativeAI", "getGenDataset       [param 1]", "syntheticDataset", t2.getGenDataset());
             checkStr   ("GenerativeAI", "getGenerativeModels [param 2]", "diffusionModel",   t2.getGenerativeModels());
             checkStr   ("GenerativeAI", "getLearnPatterns    [param 3]", "patternMimicry",   t2.getLearnPatterns());
             checkDouble("GenerativeAI", "getGenTrainset      [param 4]", 1000.0,             t2.getGenTrainset());
@@ -294,7 +296,7 @@ public class Level2Test {
 
             String tStr = t2.toString();
             checkPrefix("GenerativeAI", 'T', tStr);
-            checkContains("GenerativeAI", "dataset",          "syntheticDataset", tStr);
+            checkContains("GenerativeAI", "genDataset",       "syntheticDataset", tStr);
             checkContains("GenerativeAI", "generativeModels", "diffusionModel",   tStr);
             checkContains("GenerativeAI", "learnPatterns",    "patternMimicry",   tStr);
             checkContains("GenerativeAI", "genTrainset",      "1000.0",           tStr);
