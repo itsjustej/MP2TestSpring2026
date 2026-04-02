@@ -374,10 +374,6 @@ public class Level2Test {
 
             // ================================================================
             // FIELD OWNERSHIP CHECKS
-            //
-            // Verifies that each field is declared in the correct class and
-            // NOT re-declared in a subclass (which would shadow the parent
-            // field and bypass super() initialization).
             // ================================================================
             System.out.println("\n--- Field Ownership Checks ---");
 
@@ -414,32 +410,14 @@ public class Level2Test {
 
             // ================================================================
             // SUPER CONSTRUCTOR CHAIN CHECKS
-            //
-            // Constructs objects using ONLY the args constructor (no setters),
-            // then verifies that fields defined in parent classes are correctly
-            // populated meaning the student's constructor called super().
-            //
-            // Note: Java enforces that super() is called somewhere, but students
-            // can call super() with no-arg and then set fields manually below it.
-            // These checks catch that pattern by verifying the VALUE was passed
-            // up the chain, not just that super() was syntactically present.
             // ================================================================
             System.out.println("\n--- Super Constructor Chain Checks ---");
 
-            // --- MachineLearning args constructor ---
-            // new MachineLearning(learnType, problem, algorithm)
-            // After construction (no setters), all three fields must be set.
-            // This is the baseline also validates the args constructor itself.
             MachineLearning mlChain = new MachineLearning("supervisedLearning", "classificationProblem", "decisionTree");
             checkStr("MachineLearning (super chain)", "getLearnType (no setter)", "supervisedLearning",    mlChain.getLearnType());
             checkStr("MachineLearning (super chain)", "getProblem   (no setter)", "classificationProblem", mlChain.getProblem());
             checkStr("MachineLearning (super chain)", "getAlgorithm (no setter)", "decisionTree",          mlChain.getAlgorithm());
 
-            // --- DeepLearning args constructor must call super() up to MachineLearning ---
-            // new DeepLearning(dataset, nnModel, layers, testSet, trainset)
-            // DeepLearning's own fields should be set. We can't force learnType/problem/algorithm
-            // through DL's constructor signature, but we CAN verify DL's own fields are set
-            // purely via constructor (no setters) and that inherited getters still work.
             DeepLearning dlChain = new DeepLearning("imagenetDataset", "cnnModel", 5, 800.0, 600.0);
             checkStr   ("DeepLearning (super chain)", "getDataset  (no setter)", "imagenetDataset", dlChain.getDataset());
             checkStr   ("DeepLearning (super chain)", "getNnModel  (no setter)", "cnnModel",        dlChain.getNnModel());
@@ -447,12 +425,6 @@ public class Level2Test {
             checkDouble("DeepLearning (super chain)", "getTestSet  (no setter)", 800.0,             dlChain.getTestSet());
             checkDouble("DeepLearning (super chain)", "getTrainset (no setter)", 600.0,             dlChain.getTrainset());
 
-            // --- GenerativeAI args constructor must call super() up to DeepLearning ---
-            // new GenerativeAI(dataset, generativeModels, learnPatterns, trainset)
-            // The key check: trainset, dataset, nnModel, layers, testSet are all declared
-            // in DeepLearning. If GenerativeAI re-declares them (field shadowing) OR sets
-            // them directly instead of calling super(), the field ownership check above
-            // would already fail. Here we confirm the VALUES flow through the chain.
             GenerativeAI genChain = new GenerativeAI("syntheticDataset", "diffusionModel", "patternMimicry", 1000);
             checkStr   ("GenerativeAI (super chain)", "getDataset          (no setter, inherited from DeepLearning)",  "syntheticDataset", genChain.getDataset());
             checkStr   ("GenerativeAI (super chain)", "getGenerativeModels (no setter)",                               "diffusionModel",   genChain.getGenerativeModels());
